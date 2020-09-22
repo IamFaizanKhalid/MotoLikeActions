@@ -10,6 +10,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements ShakeDetector.OnShakeListener {
 	
 	ShakeDetector shake;
+	FlashlightManager flash;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -17,22 +18,30 @@ public class MainActivity extends AppCompatActivity implements ShakeDetector.OnS
 		setContentView(R.layout.activity_main);
 		
 		SensorManager sMgr;
-		sMgr = (SensorManager)this.getSystemService(SENSOR_SERVICE);
+		sMgr = (SensorManager) this.getSystemService(SENSOR_SERVICE);
 		
 		Sensor accel;
 		try {
-			accel = sMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-			shake = new ShakeDetector();
-			sMgr.registerListener(shake, accel, SensorManager.SENSOR_DELAY_NORMAL);
-			shake.setOnShakeListener(this);
-		}catch (NullPointerException np){
+			try {
+				flash = new FlashlightManager(this);
+			} catch (Exception e) {
+				Toast.makeText(this, "Cannot Access Camera", Toast.LENGTH_SHORT).show();
+			}
+			if (flash.isAvailable){
+				accel = sMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				shake = new ShakeDetector(this);
+				sMgr.registerListener(shake, accel, SensorManager.SENSOR_DELAY_NORMAL);
+				
+			}
+		} catch (NullPointerException e) {
 			Toast.makeText(this, "Accelerometer Sensor Not Found", Toast.LENGTH_SHORT).show();
-			np.printStackTrace();
 		}
 	}
 	
 	@Override
 	public void onShake(int count) {
-		Toast.makeText(this,"Shook "+count+" times",Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Shook " + count + " times", Toast.LENGTH_SHORT).show();
+		if (count==2)
+			flash.toggle();
 	}
 }
