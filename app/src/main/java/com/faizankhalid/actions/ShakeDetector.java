@@ -1,32 +1,43 @@
 package com.faizankhalid.actions;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+
+import static android.content.Context.SENSOR_SERVICE;
 
 public class ShakeDetector implements SensorEventListener {
 	
 	private static final float SHAKE_THRESHOLD_GRAVITY = 2.7F;
 	private static final int SHAKE_SLOP_TIME_MS = 250;
 	private static final int SHAKE_COUNT_RESET_TIME_MS = 3000;
-
+	
 	private OnShakeListener mListener;
 	private long mShakeTimestamp;
-	private int resetAfter;
+	private int resetAfter = 2;
 	private int mShakeCount;
 	
-	ShakeDetector (OnShakeListener listener) {
+	private static final int TYPE_CAMERA = 0;
+	
+	ShakeDetector(Context context, OnShakeListener listener) throws NullPointerException {
 		this.mListener = listener;
-		this.resetAfter = 2;
+		
+		SensorManager sMgr;
+		sMgr = (SensorManager) context.getSystemService(SENSOR_SERVICE);
+		
+		Sensor accel = sMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sMgr.registerListener(this, accel, SensorManager.SENSOR_DELAY_NORMAL);
 	}
-	ShakeDetector (OnShakeListener listener, int resetAfter) {
-		this.mListener = listener;
+	
+	ShakeDetector(Context context, OnShakeListener listener, int resetAfter) throws NullPointerException {
+		this(context, listener);
 		this.resetAfter = resetAfter;
 	}
 	
 	public interface OnShakeListener {
-		public void onShake(int count);
+		public void onShake(int type, int count);
 	}
 	
 	@Override
@@ -64,7 +75,7 @@ public class ShakeDetector implements SensorEventListener {
 				mShakeTimestamp = now;
 				mShakeCount++;
 				
-				mListener.onShake(mShakeCount);
+				mListener.onShake(TYPE_CAMERA, mShakeCount);
 				
 				if (mShakeCount >= resetAfter) {
 					mShakeCount = 0;
