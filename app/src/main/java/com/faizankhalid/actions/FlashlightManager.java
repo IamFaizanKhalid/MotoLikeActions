@@ -11,18 +11,13 @@ public class FlashlightManager {
 	private boolean status;
 	boolean isAvailable;
 	
-	FlashlightManager(Context context) throws CameraAccessException {
+	public FlashlightManager(Context context) throws CameraAccessException {
 		isAvailable = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
 		
 		if (isAvailable) {
 			//getting the camera manager and camera id
 			mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-			try {
-				mCameraId = mCameraManager.getCameraIdList()[0];
-			} catch (CameraAccessException e) {
-				throw e;
-			}
-			
+			mCameraId = mCameraManager.getCameraIdList()[0];
 			mCameraManager.registerTorchCallback(new CameraManager.TorchCallback() {
 				@Override
 				public void onTorchModeChanged(String cameraId, boolean status) {
@@ -30,7 +25,6 @@ public class FlashlightManager {
 					setStatus(status);
 				}
 			}, null);
-			
 			this.status = false;
 		}
 	}
