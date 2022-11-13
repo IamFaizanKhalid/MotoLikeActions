@@ -19,7 +19,7 @@ public class ShakeDetector implements SensorEventListener {
 	private int resetAfter = 2;
 	private int mShakeCount;
 	
-	private static final int TYPE_CAMERA = 0;
+	public static final int TYPE_CAMERA = 0;
 	
 	ShakeDetector(Context context, OnShakeListener listener) throws NullPointerException {
 		this.mListener = listener;
@@ -37,7 +37,7 @@ public class ShakeDetector implements SensorEventListener {
 	}
 	
 	public interface OnShakeListener {
-		public void onShake(int type, int count);
+		public void onShake(int type);
 	}
 	
 	@Override
@@ -75,7 +75,7 @@ public class ShakeDetector implements SensorEventListener {
 				mShakeTimestamp = now;
 				mShakeCount++;
 				
-				mListener.onShake(TYPE_CAMERA, mShakeCount);
+				mListener.onShake(TYPE_CAMERA);
 				
 				if (mShakeCount >= resetAfter) {
 					mShakeCount = 0;

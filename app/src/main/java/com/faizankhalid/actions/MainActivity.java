@@ -2,40 +2,27 @@ package com.faizankhalid.actions;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
-public class MainActivity extends AppCompatActivity implements ShakeDetector.OnShakeListener {
-	
-	ShakeDetector shake;
-	FlashlightManager flash;
+public class MainActivity extends AppCompatActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		try {
-			flash = new FlashlightManager(this);
-		} catch (Exception e) {
-			showToast("Cannot Access Camera");
-		}
-		try {
-			if (flash.isAvailable)
-				shake = new ShakeDetector(this, this);
-		} catch (Exception e) {
-			showToast("ACCELEROMETER Sensor Not Found!");
-		}
-	}
-	
-	@Override
-	public void onShake(int type, int count) {
-		showToast("Shook " + count + " times");
-		if (count == 2)
-			flash.toggle();
-	}
-	
-	private void showToast(String str) {
-		Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+		Switch f=(Switch) findViewById(R.id.main_switch_flash);
+		f.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (buttonView.isChecked())
+					startService(new Intent(getApplicationContext(), SensorService.class));
+				else
+					stopService(new Intent(getApplicationContext(), SensorService.class));
+			}
+		});
 	}
 }
